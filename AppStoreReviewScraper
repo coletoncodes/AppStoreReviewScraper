@@ -1,0 +1,45 @@
+
+from app_store_scraper import AppStore
+from urllib.parse import urlsplit
+import json
+import datetime
+import csv
+
+def datetime_converter(o):
+    if isinstance(o, datetime.datetime):
+        return o.__str__()
+    raise TypeError ("Type %s not serializable" % type(o))
+
+def get_reviews(app_store_url: str, how_many: int):
+    # Parse the URL using urlsplit
+    parsed_url = urlsplit(app_store_url)
+    # Extract the path component of the URL
+    path_parts = parsed_url.path.split('/')
+    app_country = path_parts[-4]
+    app_name = path_parts[-2]
+    app_id = path_parts[-1].split('id')[-1]
+    # Create an instance of the AppStore class for the app
+    app = AppStore(country=app_country, app_name=app_name, app_id=app_id)
+    # Fetch reviews for the app
+    app.review(how_many=how_many)
+    # Convert reviews to JSON and load as dictionary
+    reviews_dict = json.loads(json.dumps(app.reviews, default=datetime_converter))
+    # Get keys for header row
+    header = reviews_dict[0].keys()
+    for review in reviews_dict:
+        if 'developerResponse' in review:
+            del review['developerResponse']
+    # Get keys for header row
+    header = reviews_dict[0].keys()
+    # Write data to CSV file
+    with open('reviews.csv', 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=header)
+        writer.writeheader()
+        for review in reviews_dict:
+            writer.writerow(review)
+
+app_store_url = 'https://apps.apple.com/us/app/blinkist-big-ideas-in-15-min/id568839295'
+reviews = get_reviews(app_store_url, 1000)
+# reviews_dict = json.loads(reviews)
+# first_review = reviews_dict[0]
+# print(first_review)
