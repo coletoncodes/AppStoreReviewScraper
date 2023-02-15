@@ -6,9 +6,9 @@ It will create a new CSV file for the app's reviews and from there you can do wh
 
 Please note the url must be in this format: 
 
-'''
+
 https://apps.apple.com/APP_COUNTRY/app/APP_NAME/APP_ID'
-'''
+
 
 This isn't a project I spent a lot of time with, so feel free to Fork and do with as you wish. This is just a starting point.
 
